@@ -14,5 +14,7 @@ export default {
 </script>
 
 <style lang="less" csoped>
-
+#app {
+  height: 100%;
+}
 </style>
