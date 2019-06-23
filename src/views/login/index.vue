@@ -5,11 +5,11 @@
         <img src="./logo_index.png" alt>
       </div>
       <div class="login-form">
-        <el-form ref="form" :model="form">
-          <el-form-item>
+        <el-form ref="ruleForm" :model="form" :rules="rules">
+          <el-form-item prop="mobile">
             <el-input v-model="form.mobile" placeholder="手机号"></el-input>
           </el-form-item>
-          <el-form-item>
+          <el-form-item prop="code">
             <el-col :span="10">
               <el-input v-model="form.code" placeholder="验证码"></el-input>
             </el-col>
@@ -39,7 +39,17 @@ export default {
         mobile: '17635950228',
         code: ''
       },
-      captchaObj: null // 通过 initGeetest 得到的极验验证码对象
+      captchaObj: null, // 通过 initGeetest 得到的极验验证码对象
+      rules: {
+        mobile: [
+          { required: true, message: '请输入手机号', trigger: 'blur' },
+          { len: 11, message: '长度必须为11个字符', trigger: 'blur' }
+        ],
+        code: [
+          { required: true, message: '请输入验证码', trigger: 'blur' },
+          { len: 6, message: '长度在必须为6个字符', trigger: 'blur' }
+        ]
+      }
     }
   },
   methods: {
@@ -95,6 +105,18 @@ export default {
 
     // 点击登陆按钮
     handleLogin () {
+      // console.log('123')
+      // 表单验证通过才可登陆
+      this.$refs['ruleForm'].validate(valid => {
+        // console.log(valid) // false true
+        if (!valid) {
+          return
+        }
+        // 表单验证通过，提交登录
+        this.submitLogin()
+      })
+    },
+    submitLogin () {
       axios({
         method: 'POST',
         url: 'http://ttapi.research.itcast.cn/mp/v1_0/authorizations',
