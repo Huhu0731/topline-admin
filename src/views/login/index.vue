@@ -14,7 +14,9 @@
               <el-input v-model="form.code" placeholder="验证码"></el-input>
             </el-col>
             <el-col :span="10" :offset="2">
-              <el-button @click="handleSendCode">获取验证码</el-button>
+              <!-- <el-button @click="handleSendCode">获取验证码</el-button> -->
+              <!-- codeTimer开始为null !!codeTimer为false 有了定时器后 !!codeTimer为true -->
+              <el-button :disabled="!!codeTimer" @click="handleSendCode">{{codeTimer?`剩余${codeSecons}秒`:'获取验证码'}}</el-button>
             </el-col>
           </el-form-item>
           <el-form-item prop="agree">
@@ -35,6 +37,7 @@
 
 import axios from 'axios'
 import '@/vendor/gt.js' // gt.js 会向全局 window 暴露一个函数 initGeetest
+const initCodeSeconds = 60 // 倒计时一共多少秒
 
 export default {
   name: 'AppLogin',
@@ -60,7 +63,9 @@ export default {
           { required: true, message: '请同意用户协议', trigger: 'change' },
           { pattern: /true/, message: '请同意用户协议', trigger: 'change' }
         ]
-      }
+      },
+      codeSecons: initCodeSeconds, // 倒计时的时间
+      codeTimer: null // 倒计时定时器
     }
   },
   methods: {
@@ -98,10 +103,10 @@ export default {
         }, captchaObj => {
           // 这里可以调用验证实例 captchaObj 的实例方法
           this.captchaObj = captchaObj
-          captchaObj.onReady(function () {
+          captchaObj.onReady(() => {
             // 验证码ready之后才能调用verify方法显示验证码
             captchaObj.verify()
-          }).onSuccess(function () {
+          }).onSuccess(() => {
             // your code
             // console.log('验证成功')
             // console.log(captchaObj.getValidate())
@@ -116,10 +121,24 @@ export default {
               }
             }).then(res => {
               console.log(res.data)
+              // 发送短信后开始倒计时
+              this.codeCountDown()
             })
           })
         })
       })
+    },
+
+    // 发送短信后开始倒计时
+    codeCountDown () {
+      this.codeTimer = window.setInterval(() => {
+        this.codeSecons--
+        if (this.codeSecons <= 0) {
+          this.codeSecons = initCodeSeconds // 倒计时恢复
+          window.clearInterval(this.codeTimer) // 清除定时器
+          this.codeTimer = null // 存储定时器的参数也恢复
+        }
+      }, 1000)
     },
 
     // 点击登陆按钮
