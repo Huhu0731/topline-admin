@@ -65,7 +65,8 @@ export default {
         ]
       },
       codeSecons: initCodeSeconds, // 倒计时的时间
-      codeTimer: null // 倒计时定时器
+      codeTimer: null, // 倒计时定时器
+      saveMobile: '' // 用来存储手机号 在点击获取验证码 滑动图片出现 但是并没有去滑动 而改变了手机号码 以它来做判断
     }
   },
   methods: {
@@ -79,14 +80,25 @@ export default {
         if (errorMessage.trim().length > 0) {
           return
         }
-        this.showGeetest()
+        // 手机号码验证成功
+        // 验证是否有插件对象
+        if (this.captchaObj) {
+          // 若有插件对象 则判断前后手机号码是否一致
+          if (this.saveMobile === this.form.mobile) {
+            this.captchaObj.verify()
+          } else {
+            // 若不一致
+            // 这里还有一个小问题 就是从新调用这个方法 dom会从新创建一个弹框
+            // 因此在此之前要清除之前的弹框元素
+            document.body.removeChild(document.querySelector('.geetest_panel'))
+            this.showGeetest()
+          }
+        } else {
+          this.showGeetest()
+        }
       })
     },
     showGeetest () {
-      if (this.captchaObj) {
-        return this.captchaObj.verify()
-      }
-
       axios({
         method: 'GET',
         url: `http://ttapi.research.itcast.cn/mp/v1_0/captchas/${this.form.mobile}`
@@ -104,6 +116,7 @@ export default {
           // 这里可以调用验证实例 captchaObj 的实例方法
           this.captchaObj = captchaObj
           captchaObj.onReady(() => {
+            this.saveMobile = this.form.mobile
             // 验证码ready之后才能调用verify方法显示验证码
             captchaObj.verify()
           }).onSuccess(() => {
