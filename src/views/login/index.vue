@@ -18,7 +18,7 @@
             </el-col>
           </el-form-item>
           <el-form-item>
-            <el-button class="btn-login" type="primary" @click="handleLogin">登陆</el-button>
+            <el-button class="btn-login" type="primary" @click="handleLogin" :loading="loginLoading">登陆</el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -39,6 +39,7 @@ export default {
         mobile: '17635950228',
         code: ''
       },
+      loginLoading: false,
       captchaObj: null, // 通过 initGeetest 得到的极验验证码对象
       rules: {
         mobile: [
@@ -117,6 +118,7 @@ export default {
       })
     },
     submitLogin () {
+      this.loginLoading = true
       axios({
         method: 'POST',
         url: 'http://ttapi.research.itcast.cn/mp/v1_0/authorizations',
@@ -128,6 +130,7 @@ export default {
           message: '登陆成功',
           type: 'success'
         })
+        this.loginLoading = false
         // 页面跳转
         this.$router.push({
           name: 'home'
@@ -137,6 +140,7 @@ export default {
         if (err.response.status === 400) {
           this.$message.error('登录失败，手机号或验证码错误')
         }
+        this.loginLoading = false
       })
     }
   }
