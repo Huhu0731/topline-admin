@@ -18,7 +18,7 @@
             </el-col>
           </el-form-item>
           <el-form-item>
-            <el-button class="btn-login" type="primary">登陆</el-button>
+            <el-button class="btn-login" type="primary" @click="handleLogin">登陆</el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -90,6 +90,31 @@ export default {
             })
           })
         })
+      })
+    },
+
+    // 点击登陆按钮
+    handleLogin () {
+      axios({
+        method: 'POST',
+        url: 'http://ttapi.research.itcast.cn/mp/v1_0/authorizations',
+        data: this.form
+      }).then(res => {
+        // console.log(res.data)
+        // Element 提供的 Message 消息提示组件，这也是组件调用的一种形式
+        this.$message({
+          message: '登陆成功',
+          type: 'success'
+        })
+        // 页面跳转
+        this.$router.push({
+          name: 'home'
+        })
+      }).catch(err => {
+        // console.log(err.response)
+        if (err.response.status === 400) {
+          this.$message.error('登录失败，手机号或验证码错误')
+        }
       })
     }
   }
