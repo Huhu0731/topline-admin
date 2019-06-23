@@ -16,7 +16,7 @@
             <el-col :span="10" :offset="2">
               <!-- <el-button @click="handleSendCode">获取验证码</el-button> -->
               <!-- codeTimer开始为null !!codeTimer为false 有了定时器后 !!codeTimer为true -->
-              <el-button :disabled="!!codeTimer" @click="handleSendCode">{{codeTimer?`剩余${codeSecons}秒`:'获取验证码'}}</el-button>
+              <el-button :disabled="!!codeTimer||codeLoading" @click="handleSendCode">{{codeTimer?`剩余${codeSecons}秒`:'获取验证码'}}</el-button>
             </el-col>
           </el-form-item>
           <el-form-item prop="agree">
@@ -66,7 +66,8 @@ export default {
       },
       codeSecons: initCodeSeconds, // 倒计时的时间
       codeTimer: null, // 倒计时定时器
-      saveMobile: '' // 用来存储手机号 在点击获取验证码 滑动图片出现 但是并没有去滑动 而改变了手机号码 以它来做判断
+      saveMobile: '', // 用来存储手机号 在点击获取验证码 滑动图片出现 但是并没有去滑动 而改变了手机号码 以它来做判断
+      codeLoading: false // 当网络不好的时候禁止用户多次点击
     }
   },
   methods: {
@@ -99,6 +100,7 @@ export default {
       })
     },
     showGeetest () {
+      this.codeLoading = true
       axios({
         method: 'GET',
         url: `http://ttapi.research.itcast.cn/mp/v1_0/captchas/${this.form.mobile}`
@@ -119,6 +121,7 @@ export default {
             this.saveMobile = this.form.mobile
             // 验证码ready之后才能调用verify方法显示验证码
             captchaObj.verify()
+            this.codeLoading = false // 验证码显示出来后就可点击
           }).onSuccess(() => {
             // your code
             // console.log('验证成功')
