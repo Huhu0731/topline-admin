@@ -68,15 +68,23 @@ export default {
     // 请求获取初始化验证码参数
     handleSendCode () {
       // console.log('handleSendCode')
-      let { mobile } = this.form
-
+      // 点击获取验证码后 只对电话号码进行验证
+      this.$refs['ruleForm'].validateField('mobile', errorMessage => {
+        // console.log(errorMessage) // 成功为空 失败为长度必须为11个字符
+        if (errorMessage.trim().length > 0) {
+          return
+        }
+        this.showGeetest()
+      })
+    },
+    showGeetest () {
       if (this.captchaObj) {
         return this.captchaObj.verify()
       }
 
       axios({
         method: 'GET',
-        url: `http://ttapi.research.itcast.cn/mp/v1_0/captchas/${mobile}`
+        url: `http://ttapi.research.itcast.cn/mp/v1_0/captchas/${this.form.mobile}`
       }).then(res => {
         // console.log(res.data)
         const { data } = res.data
@@ -100,7 +108,7 @@ export default {
             const result = captchaObj.getValidate()
             axios({
               method: 'GET',
-              url: `http://ttapi.research.itcast.cn/mp/v1_0/sms/codes/${mobile}`,
+              url: `http://ttapi.research.itcast.cn/mp/v1_0/sms/codes/${this.form.mobile}`,
               params: {
                 challenge: result.geetest_challenge,
                 validate: result.geetest_validate,
