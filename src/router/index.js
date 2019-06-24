@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import NProgress from 'nprogress'
 
 Vue.use(Router)
 
@@ -43,6 +44,7 @@ const router = new Router({
  * next 允许通过的方法
  */
 router.beforeEach((to, from, next) => {
+  NProgress.start()
   // 判断是不是登陆页面
   // 若是 判断是否有登陆信息 有 让其不在访问登陆页面 没有 则可以访问登陆页面
   // 若不是 判断是否有登陆信息 有 让其通过 没有让他去登陆
@@ -60,6 +62,11 @@ router.beforeEach((to, from, next) => {
       next({ name: 'login' })
     }
   }
+})
+
+// 路由加载完毕都会经过这里
+router.afterEach((to, from) => {
+  NProgress.done()
 })
 
 export default router
