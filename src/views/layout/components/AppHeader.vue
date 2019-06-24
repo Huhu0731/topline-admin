@@ -4,8 +4,8 @@
     <el-col :span="4" :offset="6">
       <el-dropdown trigger="click">
         <span class="el-dropdown-link">
-          <img width="30" src="http://toutiao.meiduo.site/Fkj6tQi3xJwVXi1u2swCElotfdCi">
-          17634950228<i class="el-icon-arrow-down el-icon--right"></i>
+          <img width="30" :src="userInfo.photo">
+          {{ userInfo.name }}<i class="el-icon-arrow-down el-icon--right"></i>
         </span>
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item>用户设置</el-dropdown-item>
@@ -20,7 +20,12 @@
 export default {
   name: 'AppAside',
   data () {
-    return {}
+    return {
+      userInfo: {}
+    }
+  },
+  created () {
+    this.userInfo = JSON.parse(window.localStorage.getItem('user_info'))
   }
 }
 </script>
