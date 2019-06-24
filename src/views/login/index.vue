@@ -35,7 +35,7 @@
 
 <script>
 
-import axios from 'axios'
+// import axios from 'axios'
 import '@/vendor/gt.js' // gt.js 会向全局 window 暴露一个函数 initGeetest
 const initCodeSeconds = 60 // 倒计时一共多少秒
 
@@ -101,9 +101,9 @@ export default {
     },
     showGeetest () {
       this.codeLoading = true
-      axios({
+      this.$http({
         method: 'GET',
-        url: `http://ttapi.research.itcast.cn/mp/v1_0/captchas/${this.form.mobile}`
+        url: `/captchas/${this.form.mobile}`
       }).then(res => {
         // console.log(res.data)
         const { data } = res.data
@@ -127,9 +127,9 @@ export default {
             // console.log('验证成功')
             // console.log(captchaObj.getValidate())
             const result = captchaObj.getValidate()
-            axios({
+            this.$http({
               method: 'GET',
-              url: `http://ttapi.research.itcast.cn/mp/v1_0/sms/codes/${this.form.mobile}`,
+              url: `/sms/codes/${this.form.mobile}`,
               params: {
                 challenge: result.geetest_challenge,
                 validate: result.geetest_validate,
@@ -172,9 +172,9 @@ export default {
     },
     submitLogin () {
       this.loginLoading = true
-      axios({
+      this.$http({
         method: 'POST',
-        url: 'http://ttapi.research.itcast.cn/mp/v1_0/authorizations',
+        url: '/authorizations',
         data: this.form
       }).then(res => {
         // console.log(res.data)
