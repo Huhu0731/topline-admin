@@ -1,6 +1,6 @@
 <template>
   <el-menu
-    default-active="1"
+    default-active="/"
     @open="handleOpen"
     @close="handleClose"
     router
