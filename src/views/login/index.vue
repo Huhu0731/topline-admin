@@ -104,9 +104,9 @@ export default {
       this.$http({
         method: 'GET',
         url: `/captchas/${this.form.mobile}`
-      }).then(res => {
+      }).then(data => {
         // console.log(res.data)
-        const { data } = res.data
+        // const { data } = res.data
         window.initGeetest({
           // 以下配置参数来自服务端 SDK
           gt: data.gt,
@@ -135,8 +135,8 @@ export default {
                 validate: result.geetest_validate,
                 seccode: result.geetest_seccode
               }
-            }).then(res => {
-              console.log(res.data)
+            }).then(data => {
+              console.log(data)
               // 发送短信后开始倒计时
               this.codeCountDown()
             })
@@ -176,10 +176,10 @@ export default {
         method: 'POST',
         url: '/authorizations',
         data: this.form
-      }).then(res => {
+      }).then(data => {
         // console.log(res.data)
         // 用户登录成功 把res.data 的数据在本地保存 用于登陆后 左上角的用户信息更新
-        window.localStorage.setItem('user_info', JSON.stringify(res.data.data))
+        window.localStorage.setItem('user_info', JSON.stringify(data))
         // Element 提供的 Message 消息提示组件，这也是组件调用的一种形式
         this.$message({
           message: '登陆成功',

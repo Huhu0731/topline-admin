@@ -33,9 +33,11 @@ axios.interceptors.request.use(config => {
 /**
  * Axios 响应拦截器
  * 服务器返回数据到浏览器之前都会经过这里
+ * 统一处理相应数据
  */
 axios.interceptors.response.use(response => {
-  return response
+  // response 就是发送axios请求后.then(res=>{})中的res
+  return response.data.data
 }, error => {
   return Promise.reject(error)
 })

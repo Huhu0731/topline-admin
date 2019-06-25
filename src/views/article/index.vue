@@ -116,8 +116,8 @@ export default {
       //   Authorization: `Bearer ${userInfo.token}`
       // }
       // 每次发送axios请求 都要设置请求头所以使用asiox请求拦截器
-    }).then(res => {
-      console.log(res)
+    }).then(data => {
+      console.log(data)
     })
   },
   methods: {
