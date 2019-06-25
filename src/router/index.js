@@ -70,8 +70,8 @@ router.beforeEach((to, from, next) => {
 })
 
 // 路由加载完毕都会经过这里
-router.afterEach((to, from) => {
-  NProgress.done()
-})
+// router.afterEach((to, from) => {
+//   NProgress.done()
+// })
 
 export default router

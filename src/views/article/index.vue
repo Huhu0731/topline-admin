@@ -106,6 +106,20 @@ export default {
       }]
     }
   },
+  // 获取文章列表
+  // 在Authorization 请求头中携带的token，格式为"Bearer "拼接上token，注意Bearer后有一个空格
+  created () {
+    this.$http({
+      method: 'GET',
+      url: '/articles'
+      // headers: { // 自定义发送请求头  才能获取到数据
+      //   Authorization: `Bearer ${userInfo.token}`
+      // }
+      // 每次发送axios请求 都要设置请求头所以使用asiox请求拦截器
+    }).then(res => {
+      console.log(res)
+    })
+  },
   methods: {
   }
 }
