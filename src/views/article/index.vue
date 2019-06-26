@@ -37,25 +37,40 @@
     <!-- 文章列表 -->
     <el-card class="list-card">
       <div slot="header" class="clearfix">
-        <span>共找到15条符合条件的内容</span>
+        <span>共找到 <strong>{{ totalCount }}</strong> 条符合条件的内容</span>
       </div>
       <template>
+        <!-- 表格列默认只能输出文本，如果需要自定义里面的内容，则需要 -->
+        <!--
+          slot-scope 是插槽作用域，现在先听个名词，你要知道的是值 scope 是起的一个名字
+          scope 中有个成员叫 row
+          也就是说 scope.row 就是当前的遍历项对象
+          自定义列模板，el-table-column 的 prop 就没有意义了
+        -->
         <el-table
-          :data="tableData"
+          :data="articles"
           style="width: 100%">
           <el-table-column
-            prop="date"
-            label="日期"
+            prop="cover.images[0]"
+            label="封面"
+            width="60">
+            <template slot-scope="scope">
+              <img width="30" :src="scope.row.cover.images[0]">
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="title"
+            label="标题"
             width="180">
           </el-table-column>
           <el-table-column
-            prop="name"
-            label="姓名"
+            prop="pubdate"
+            label="发布日期"
             width="180">
           </el-table-column>
           <el-table-column
-            prop="address"
-            label="地址">
+            prop="status"
+            label="状态">
           </el-table-column>
         </el-table>
       </template>
@@ -63,7 +78,8 @@
       <el-pagination
         background
         layout="prev, pager, next"
-        :total="1000">
+        :total="totalCount"
+        @current-change="handleCurrentChange">
       </el-pagination>
       <!-- /页码 -->
     </el-card>
@@ -87,40 +103,41 @@ export default {
         desc: '',
         value1: ''
       },
-      tableData: [{
-        date: '2016-05-02',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1518 弄'
-      }, {
-        date: '2016-05-04',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1517 弄'
-      }, {
-        date: '2016-05-01',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1519 弄'
-      }, {
-        date: '2016-05-03',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1516 弄'
-      }]
+      articles: [],
+      totalCount: 0 // 数据总条数
     }
   },
   // 获取文章列表
   // 在Authorization 请求头中携带的token，格式为"Bearer "拼接上token，注意Bearer后有一个空格
   created () {
-    this.$http({
-      method: 'GET',
-      url: '/articles'
-      // headers: { // 自定义发送请求头  才能获取到数据
-      //   Authorization: `Bearer ${userInfo.token}`
-      // }
-      // 每次发送axios请求 都要设置请求头所以使用asiox请求拦截器
-    }).then(data => {
-      console.log(data)
-    })
+    this.loadArticles()
   },
   methods: {
+    // 加载所有文章  参数默认获取第一页
+    loadArticles (page = 1) {
+      this.$http({
+        method: 'GET',
+        url: '/articles',
+        // headers: { // 自定义发送请求头  才能获取到数据
+        //   Authorization: `Bearer ${userInfo.token}`
+        // }
+        // 每次发送axios请求 都要设置请求头所以使用asiox请求拦截器
+        params: {
+          page, // 请求数据的页码，不传默认为 1
+          per_page: 10// 请求数据的每页大小，不传默认为 10
+        }
+      }).then(data => {
+        console.log(data) // data.results是数组结果
+        this.articles = data.results
+        this.totalCount = data.total_count // 记录数据总条数
+      })
+    },
+
+    // 页码改变 获取当前页的10条数据
+    handleCurrentChange (page) {
+      // console.log(page) // 点击页码几就输出几
+      this.loadArticles(page)
+    }
   }
 }
 </script>
