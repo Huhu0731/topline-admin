@@ -9,7 +9,8 @@ import 'nprogress/nprogress.css'
 import axios from 'axios'
 
 // 配置axios的基础路径
-axios.defaults.baseURL = 'http://ttapi.research.itcast.cn/mp/v1_0/'
+// axios.defaults.baseURL = 'http://ttapi.research.itcast.cn/mp/v1_0/'
+axios.defaults.baseURL = 'http://toutiao.course.itcast.cn/mp/v1_0/'
 // 往Vue 的原型中添加成员
 Vue.prototype.$http = axios
 
@@ -38,7 +39,13 @@ axios.interceptors.request.use(config => {
 axios.interceptors.response.use(response => {
   // response 就是发送axios请求后.then(res=>{})中的res
   return response.data.data
-}, error => {
+}, error => { // >= 400的状态码会进入这里
+  // console.dir(error) // response.status为401 说明token过期或者无效 让用户重新登陆
+  if (error.response.status === 401) {
+    // 务必删除本地存储信息
+    window.localStorage.removeItem('user_info')
+    router.push({ name: 'login' })
+  }
   return Promise.reject(error)
 })
 
