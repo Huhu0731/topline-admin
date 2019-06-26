@@ -49,7 +49,8 @@
         -->
         <el-table
           :data="articles"
-          style="width: 100%">
+          style="width: 100%"
+          v-loading="articleLoading">
           <el-table-column
             prop="cover.images[0]"
             label="封面"
@@ -79,7 +80,8 @@
         background
         layout="prev, pager, next"
         :total="totalCount"
-        @current-change="handleCurrentChange">
+        @current-change="handleCurrentChange"
+        :disabled="articleLoading">
       </el-pagination>
       <!-- /页码 -->
     </el-card>
@@ -104,7 +106,8 @@ export default {
         value1: ''
       },
       articles: [],
-      totalCount: 0 // 数据总条数
+      totalCount: 0, // 数据总条数
+      articleLoading: false // 文章或者按钮禁用状态
     }
   },
   // 获取文章列表
@@ -115,6 +118,7 @@ export default {
   methods: {
     // 加载所有文章  参数默认获取第一页
     loadArticles (page = 1) {
+      this.articleLoading = true
       this.$http({
         method: 'GET',
         url: '/articles',
@@ -130,6 +134,7 @@ export default {
         console.log(data) // data.results是数组结果
         this.articles = data.results
         this.totalCount = data.total_count // 记录数据总条数
+        this.articleLoading = false
       })
     },
 
