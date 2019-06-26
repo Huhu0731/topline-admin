@@ -62,7 +62,7 @@
           <el-table-column
             prop="title"
             label="标题"
-            width="180">
+            width="230">
           </el-table-column>
           <el-table-column
             prop="pubdate"
@@ -71,7 +71,14 @@
           </el-table-column>
           <el-table-column
             prop="status"
-            label="状态">
+            label="状态"
+            width="180">
+          </el-table-column>
+          <el-table-column label="操作 ">
+            <template slot-scope="scope">
+              <el-button type="success" size="small" plain>修改</el-button>
+              <el-button type="danger" size="small" plain @click="handleDelete(scope.row)">删除</el-button>
+            </template>
           </el-table-column>
         </el-table>
       </template>
