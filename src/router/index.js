@@ -11,8 +11,13 @@ const router = new Router({
     //   path: '/',
     //   component: () => import('@/views/home')
     // },
+
+    // 处理一个警告问题
+    // [vue-router] Named Route 'layout' has a default child route. When navigating to this named route
+    // (:to="{name: 'layout'"), the default child route will not be rendered. Remove the name from this
+    // route and use the name of the default child route for named links instead.
     {
-      name: 'layout',
+      // name: 'layout', // 这个名字是没有意义的
       path: '/',
       component: () => import('@/views/layout'),
       children: [
