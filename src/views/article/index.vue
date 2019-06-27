@@ -99,11 +99,14 @@
           </el-table-column>
         </el-table>
       </template>
-      <!-- 页码 -->
+      <!-- 页码
+        total  总记录数
+        current-page 当前页码，也就是高亮的那个页码-->
       <el-pagination
         background
         layout="prev, pager, next"
         :total="totalCount"
+        :current-page="page"
         @current-change="handleCurrentChange"
         :disabled="articleLoading">
       </el-pagination>
@@ -150,7 +153,8 @@ export default {
         begin_pubdate: '', // 开始时间
         end_pubdate: '' // 结束时间
       },
-      begin_end_pubdate: [] // 时间下拉框存入的时间
+      begin_end_pubdate: [], // 时间下拉框存入的时间
+      page: 1 // 用来记录分页器的当前页码
     }
   },
 
@@ -200,6 +204,7 @@ export default {
     // 页码改变 获取当前页的10条数据
     handleCurrentChange (page) {
       // console.log(page) // 点击页码几就输出几
+      this.page = page
       this.loadArticles(page)
     },
 
@@ -223,7 +228,8 @@ export default {
     // 点击查询 根据查询条件查询文章
     onSubmit () {
       // 要根据查询参数做些判断  增加在loadArticles()方法中
-      this.loadArticles()
+      this.page = 1 // 让分页器页码在1
+      this.loadArticles() // 加载第一页的数据 不传默认为1
     }
   }
 }
