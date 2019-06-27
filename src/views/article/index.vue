@@ -230,6 +230,36 @@ export default {
       // 要根据查询参数做些判断  增加在loadArticles()方法中
       this.page = 1 // 让分页器页码在1
       this.loadArticles() // 加载第一页的数据 不传默认为1
+    },
+
+    // 点击删除按钮 实现删除功能
+    handleDelete (article) {
+      // console.log(article)
+      this.$confirm('确定删除吗?', '删除提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => { // 确认执行
+        // 发送删除请求
+        this.$http({
+          method: 'DELETE',
+          url: `/articles/${article.id}`
+        }).then(data => {
+          // 提示删除成功
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          })
+          // console.log(data)
+          // 重新加载文章列表
+          this.loadArticles(this.page)
+        })
+      }).catch(() => { // 取消执行
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
     }
   }
 }
