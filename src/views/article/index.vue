@@ -73,6 +73,9 @@
             prop="status"
             label="状态"
             width="180">
+            <template slot-scope="scope">
+              <el-tag :type="statuTypes[scope.row.status].type">{{ statuTypes[scope.row.status].label }}</el-tag>
+            </template>
           </el-table-column>
           <el-table-column label="操作 ">
             <template slot-scope="scope">
@@ -114,7 +117,29 @@ export default {
       },
       articles: [],
       totalCount: 0, // 数据总条数
-      articleLoading: false // 文章或者按钮禁用状态
+      articleLoading: false, // 文章或者按钮禁用状态
+      statuTypes: [ // 文章状态
+        {
+          type: 'info',
+          label: '草稿'
+        },
+        {
+          type: '',
+          label: '待审核'
+        },
+        {
+          type: 'success',
+          label: '审核通过'
+        },
+        {
+          type: 'warning',
+          label: '审核失败'
+        },
+        {
+          type: 'danger',
+          label: '已删除'
+        }
+      ]
     }
   },
   // 获取文章列表
@@ -160,5 +185,10 @@ export default {
 }
 .list-table {
   margin-bottom: 30px;
+}
+
+// 分页居中
+.el-pagination {
+  text-align: center;
 }
 </style>
