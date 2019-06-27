@@ -5,22 +5,36 @@
       <div slot="header" class="clearfix">
         <span>筛选条件</span>
       </div>
-      <el-form :model="form" ref="form" label-width="100px">
-        <el-form-item label="特殊资源">
-          <el-radio-group v-model="form.resource">
-            <el-radio label="线上品牌商赞助"></el-radio>
-            <el-radio label="线下场地免费"></el-radio>
+      <el-form :model="filterParams" label-width="100px">
+        <el-form-item label="状态">
+          <!-- :label 是表单提交时上传的数据 -->
+          <el-radio-group v-model="filterParams.status">
+            <el-radio label="">全部</el-radio>
+            <el-radio
+            v-for="(item,index) in statuTypes"
+            :key="item.label"
+            :label="index + ''"
+            >{{ item.label }}</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="活动区域">
-          <el-select v-model="form.region" placeholder="请选择活动区域">
-            <el-option label="区域一" value="shanghai"></el-option>
-            <el-option label="区域二" value="beijing"></el-option>
+        <el-form-item label="频道">
+          <!-- :label="item.name" 是下拉菜单显示的
+          :value="item.id" 是表单提交的值-->
+          <el-select v-model="filterParams.channel_id" placeholder="请选择活动区域">
+            <el-option label="全部" value=""></el-option>
+            <el-option
+            v-for="item in channels"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+            ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="活动形式">
+        <el-form-item label="时间">
           <el-date-picker
-            v-model="form.value1"
+            v-model="begin_end_pubdate"
+            value-format="yyyy-MM-dd"
+            @change="handleChangeDate"
             type="daterange"
             range-separator="至"
             start-placeholder="开始日期"
@@ -28,7 +42,7 @@
           </el-date-picker>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary">查询</el-button>
+          <el-button type="primary" @click="onSubmit">查询</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -104,18 +118,7 @@ export default {
   name: 'ArticleList',
   data () {
     return {
-      form: {
-        name: '',
-        region: '',
-        date1: '',
-        date2: '',
-        delivery: false,
-        type: [],
-        resource: '',
-        desc: '',
-        value1: ''
-      },
-      articles: [],
+      articles: [], // 文章列表
       totalCount: 0, // 数据总条数
       articleLoading: false, // 文章或者按钮禁用状态
       statuTypes: [ // 文章状态
@@ -139,18 +142,41 @@ export default {
           type: 'danger',
           label: '已删除'
         }
-      ]
+      ],
+      channels: [], // 频道列表
+      filterParams: { // 文章查询条件参数
+        status: '', // 文章状态
+        channel_id: '', // 频道id
+        begin_pubdate: '', // 开始时间
+        end_pubdate: '' // 结束时间
+      },
+      begin_end_pubdate: [] // 时间下拉框存入的时间
     }
   },
+
   // 获取文章列表
   // 在Authorization 请求头中携带的token，格式为"Bearer "拼接上token，注意Bearer后有一个空格
   created () {
+    // 加载文章
     this.loadArticles()
+
+    // 加载频道
+    this.loadChannels()
   },
+
   methods: {
     // 加载所有文章  参数默认获取第一页
     loadArticles (page = 1) {
       this.articleLoading = true
+      // 对filterParams 中的参数进行帅选 若条件为全部 则没有这个参数
+      const filterData = {}
+      for (let key in this.filterParams) {
+        if (this.filterParams[key]) {
+          filterData[key] = this.filterParams[key]
+        }
+      }
+      // console.log(filterData)
+
       this.$http({
         method: 'GET',
         url: '/articles',
@@ -160,10 +186,11 @@ export default {
         // 每次发送axios请求 都要设置请求头所以使用asiox请求拦截器
         params: {
           page, // 请求数据的页码，不传默认为 1
-          per_page: 10// 请求数据的每页大小，不传默认为 10
+          per_page: 10, // 请求数据的每页大小，不传默认为 10
+          ...filterData
         }
       }).then(data => {
-        console.log(data) // data.results是数组结果
+        // console.log(data) // data.results是数组结果
         this.articles = data.results
         this.totalCount = data.total_count // 记录数据总条数
         this.articleLoading = false
@@ -174,6 +201,29 @@ export default {
     handleCurrentChange (page) {
       // console.log(page) // 点击页码几就输出几
       this.loadArticles(page)
+    },
+
+    // 加载频道
+    loadChannels () {
+      this.$http({
+        method: 'GET',
+        url: '/channels'
+      }).then(data => {
+        // console.log(data)
+        this.channels = data.channels
+      })
+    },
+
+    // 动态改变文章查询条件参数 开始结束时间的值
+    handleChangeDate () {
+      this.filterParams.begin_pubdate = this.begin_end_pubdate[0]
+      this.filterParams.end_pubdate = this.begin_end_pubdate[1]
+    },
+
+    // 点击查询 根据查询条件查询文章
+    onSubmit () {
+      // 要根据查询参数做些判断  增加在loadArticles()方法中
+      this.loadArticles()
     }
   }
 }
