@@ -26,7 +26,7 @@ const router = new Router({
           path: '',
           component: () => import('@/views/home')
         },
-        {
+        { // 文章列表
           name: 'article-list',
           path: '/article',
           component: () => import('@/views/article')
@@ -40,6 +40,11 @@ const router = new Router({
           name: 'publish-edit',
           path: '/publish/:id',
           component: () => import('@/views/publish')
+        },
+        { // 评论管理
+          name: 'article-comment',
+          path: '/comment',
+          component: () => import('@/views/comment')
         }
       ]
     },
