@@ -18,17 +18,7 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="频道">
-          <!-- :label="item.name" 是下拉菜单显示的
-          :value="item.id" 是表单提交的值-->
-          <el-select v-model="filterParams.channel_id" placeholder="请选择活动区域">
-            <el-option label="全部" value=""></el-option>
-            <el-option
-            v-for="item in channels"
-            :key="item.id"
-            :label="item.name"
-            :value="item.id"
-            ></el-option>
-          </el-select>
+          <article-channel v-model="filterParams.channel_id"></article-channel>
         </el-form-item>
         <el-form-item label="时间">
           <el-date-picker
@@ -117,8 +107,13 @@
 </template>
 
 <script>
+import ArticleChannel from '@/components/article-channel'
+
 export default {
   name: 'ArticleList',
+  components: {
+    ArticleChannel
+  },
   data () {
     return {
       articles: [], // 文章列表
