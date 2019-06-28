@@ -8,11 +8,17 @@
       </div>
     </div>
     <el-form>
-      <el-form-item label="标题">
+      <el-form-item>
         <el-input type="text" v-model="articleForm.title"></el-input>
       </el-form-item>
-      <el-form-item label="内容">
-        <el-input type="textarea" v-model="articleForm.content"></el-input>
+      <el-form-item>
+        <!-- bidirectional data binding（双向数据绑定） -->
+        <quill-editor
+          v-model="articleForm.content"
+          ref="myQuillEditor"
+          :options="editorOption"
+          >
+        </quill-editor>
       </el-form-item>
       <el-form-item label="封面">
       </el-form-item>
@@ -28,12 +34,21 @@
 </template>
 
 <script>
+// 频道组件
 import ArticleChannel from '@/components/article-channel'
+
+// 富文本编辑器 require styles
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.snow.css'
+import 'quill/dist/quill.bubble.css'
+
+import { quillEditor } from 'vue-quill-editor'
 
 export default {
   name: 'AppPublish',
   components: {
-    ArticleChannel
+    ArticleChannel, // 频道组件
+    quillEditor // 富文本编辑器
   },
   data () {
     return {
@@ -44,12 +59,12 @@ export default {
           type: 0, // 封面类型 -1:自动，0-无图，1-1张，3-3张
           images: [] // 图片链接
         },
-        channel_id: 3 // 频道
-      }
+        channel_id: '' // 频道
+      },
+      editorOption: {} // 富文本编辑器相关参数选项
     }
   },
   methods: {
-
     // 发布文章
     handlePublish (draft = false) {
       this.$http({
@@ -70,6 +85,14 @@ export default {
         this.$message.error('发布失败')
       })
     }
+  },
+  computed: { // 计算属性 是函数 当属性用
+    editor () {
+      return this.$refs.myQuillEditor.quill
+    }
+  },
+  mounted () {
+    console.log('this is current quill instance object', this.editor)
   }
 }
 </script>
