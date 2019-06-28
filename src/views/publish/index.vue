@@ -3,11 +3,16 @@
     <div slot="header" class="header">
       <span>发布文章</span>
       <div>
-        <el-button type="success" @click="handlePublish(false)">发布</el-button>
-        <el-button type="primary" @click="handlePublish(true)">存入草稿</el-button>
+        <el-button
+        type="success"
+        @click="handlePublish(false)"
+        :disabled="editLoading"
+        >{{ isEtid ? '更新': '发布' }}</el-button>
+        <el-button type="primary" @click="handlePublish(true)" :disabled="editLoading">存入草稿</el-button>
       </div>
     </div>
-    <el-form>
+    <!-- <el-form v-loading="$route.name === 'publish-edit' && editLoading"> -->
+      <el-form v-loading="isEtid && editLoading">
       <el-form-item>
         <el-input type="text" v-model="articleForm.title"></el-input>
       </el-form-item>
@@ -61,8 +66,19 @@ export default {
         },
         channel_id: '' // 频道
       },
-      editorOption: {} // 富文本编辑器相关参数选项
+      editorOption: {}, // 富文本编辑器相关参数选项
+      editLoading: false
     }
+  },
+  created () {
+    // 判断路由路径 是否加载文章信息
+    // console.log(this.$route) // 中有路由名字
+    // if (isEtid) {
+    //   // 编辑文章时 加载该文章详细信息
+    //   this.loadArticle()
+    // }
+    // isEtid 为true时 就会执行 this.loadArticle()
+    this.isEtid && this.loadArticle()
   },
   methods: {
     // 发布文章
@@ -84,11 +100,30 @@ export default {
         console.log(err)
         this.$message.error('发布失败')
       })
+    },
+    // 编辑文章时 加载该文章详细信息
+    loadArticle () {
+      this.editLoading = true
+      // console.log(this.$route.params.id) // 地址栏中的参数id
+      this.$http({
+        method: 'GET',
+        url: `articles/${this.$route.params.id}`
+      }).then(data => {
+        // console.log(data)
+        this.articleForm = data
+        this.editLoading = false
+      }).catch(err => {
+        console.log(err)
+        this.$message.error('加载文章详情失败')
+      })
     }
   },
   computed: { // 计算属性 是函数 当属性用
     editor () {
       return this.$refs.myQuillEditor.quill
+    },
+    isEtid () {
+      return this.$route.name === 'publish-edit'
     }
   },
   mounted () {
