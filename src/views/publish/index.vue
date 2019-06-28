@@ -6,12 +6,12 @@
         <el-button
         type="success"
         @click="handlePublish(false)"
-        :disabled="editLoading"
+        :disabled="publishLoading"
         >{{ isEtid ? '更新': '发布' }}</el-button>
-        <el-button type="primary" @click="handlePublish(true)" :disabled="editLoading">存入草稿</el-button>
+        <el-button type="primary" @click="handlePublish(true)" :disabled="publishLoading">存入草稿</el-button>
       </div>
     </div>
-    <!-- <el-form v-loading="$route.name === 'publish-edit' && editLoading"> -->
+      <!-- <el-form v-loading="$route.name === 'publish-edit' && editLoading"> -->
       <el-form v-loading="isEtid && editLoading">
       <el-form-item>
         <el-input type="text" v-model="articleForm.title"></el-input>
@@ -67,7 +67,8 @@ export default {
         channel_id: '' // 频道
       },
       editorOption: {}, // 富文本编辑器相关参数选项
-      editLoading: false
+      editLoading: false, // 点击编辑 form表单的加载
+      publishLoading: false // 发布更新文章按钮的禁用
     }
   },
   created () {
@@ -81,9 +82,47 @@ export default {
     this.isEtid && this.loadArticle()
   },
   methods: {
-    // 发布文章
+    // 发布文章 判断是发表还是更新
     handlePublish (draft = false) {
-      this.$http({
+      this.publishLoading = true
+      if (this.isEtid) {
+        this.submitEdit(draft).then(() => {
+          this.publishLoading = false
+        })
+      } else {
+        this.submitAdd(draft).then(() => {
+          this.publishLoading = false
+        })
+      }
+    },
+    // 点击更新按钮  更新文章
+    submitEdit (draft) {
+      return this.$http({
+        method: 'PUT',
+        url: `/articles/${this.$route.params.id}`,
+        data: { // 请求体参数
+          title: this.articleForm.title,
+          content: this.articleForm.content,
+          cover: this.articleForm.cover,
+          channel_id: this.articleForm.channel_id
+        },
+        params: { // 查询字符串参数
+          draft
+        }
+      }).then(data => {
+        // console.log(data)
+        this.$message({
+          type: 'success',
+          message: '更新成功'
+        })
+      }).catch(err => {
+        console.log(err)
+        this.$message.error('更新失败')
+      })
+    },
+    // 点击发布按钮 发布文章
+    submitAdd (draft) {
+      return this.$http({
         method: 'POST',
         url: '/articles',
         data: this.articleForm,
