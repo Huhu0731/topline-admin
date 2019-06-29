@@ -27,12 +27,24 @@
         </el-form>
       </el-col>
       <el-col :offset="2" :span="4">
+        <!--
+          el-upload 上传组件，它会自动将用户选择的图片去请求上传，我们要做的就是配置一下
+           action 请求地址
+           由于它用的自己内部的请求，不是使用的 axios 去发请求
+              完整路径
+              它的请求也不会经过 axios 拦截器，所以需要手动配置 token
+           可惜的是它不支持自定义请求方法，前功尽弃
+          action="http://ttapi.research.itcast.cn/mp/v1_0/user/photo"
+          :headers="{ Authorization: token }"
+          name="photo"
+         -->
         <el-upload
           class="avatar-uploader"
-          action="https://jsonplaceholder.typicode.com/posts/"
+          action="http://ttapi.research.itcast.cn/mp/v1_0/user/photo"
           :show-file-list="false"
           :on-success="handleAvatarSuccess"
-          :before-upload="beforeAvatarUpload">
+          :before-upload="beforeAvatarUpload"
+          :http-request="handleUpload">
           <img v-if="userInfo.photo" :src="userInfo.photo" class="avatar">
           <i v-else class="el-icon-plus avatar-uploader-icon"></i>
         </el-upload>
@@ -47,6 +59,7 @@ export default {
   data () {
     return {
       userInfo: {}
+      // token: `Bearer ${JSON.parse(window.localStorage.getItem('user_info')).token}`
     }
   },
   created () {
@@ -86,7 +99,31 @@ export default {
       })
     },
     handleAvatarSuccess () {},
-    beforeAvatarUpload () {}
+    beforeAvatarUpload () {},
+    // 用户上传头像
+    handleUpload (uploadConfig) {
+      // axios 上传文件
+      // 1. 构建一个 FormData 表单对象
+      //    将文件对象添加到 FormData 中
+      // 2. 将 FormData 配置到请求体 data 选项中
+      // console.log(uploadConfig)
+      const fd = new FormData()
+      fd.append('photo', uploadConfig.file)
+      this.$http({
+        method: 'PATCH',
+        url: '/user/photo',
+        data: fd
+      }).then(data => {
+        this.userInfo.photo = data.photo
+        this.$message({
+          type: 'success',
+          message: '上传成功'
+        })
+      }).catch(err => {
+        console.log(err)
+        this.$message.error('上传失败')
+      })
+    }
   }
 }
 </script>
