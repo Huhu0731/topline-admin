@@ -9,6 +9,7 @@ import 'nprogress/nprogress.css'
 import axios from 'axios'
 // 解决后端返回数据中数字超出 JavaScript 安全整数范围问题
 import JSONbig from 'json-bigint'
+import store from './store'
 
 // 配置axios的基础路径
 axios.defaults.baseURL = 'http://ttapi.research.itcast.cn/mp/v1_0/'
@@ -85,5 +86,6 @@ Vue.config.productionTip = false
 
 new Vue({
   router,
+  store,
   render: h => h(App)
 }).$mount('#app')

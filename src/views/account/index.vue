@@ -88,7 +88,10 @@ export default {
           intro,
           email
         }
-      }).then(() => {
+      }).then((data) => {
+        // console.log(data)
+        // 将更新后的账户信息存放到vuex容器中
+        this.$store.commit('changeUser', data)
         this.$message({
           type: 'success',
           message: '更新用户信息成功'
@@ -115,6 +118,8 @@ export default {
         data: fd
       }).then(data => {
         this.userInfo.photo = data.photo
+        // 上传成功的用户头像存入vuex的容器中
+        this.$store.commit('changeUser', data)
         this.$message({
           type: 'success',
           message: '上传成功'
