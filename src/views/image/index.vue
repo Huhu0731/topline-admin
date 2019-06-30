@@ -5,10 +5,17 @@
     </div>
     <div class="action">
       <el-radio-group v-model="active" size="medium">
-        <el-radio-button label="全部" ></el-radio-button>
-        <el-radio-button label="收藏"></el-radio-button>
+        <el-radio-button label="全部" @click.native="loadImages(1, false)"></el-radio-button>
+        <el-radio-button label="收藏" @click.native="loadImages(1, true)"></el-radio-button>
       </el-radio-group>
-      <el-button type="primary" size="medium">上传图片</el-button>
+      <el-upload
+        action="http://ttapi.research.itcast.cn/mp/v1_0/user/images"
+        :headers="{ Authorization: `Bearer ${$store.state.user.token}` }"
+        name="image"
+        :on-success="handleUplaodSuccess"
+        :show-file-list="false">
+        <el-button size="small" type="primary">上传图片</el-button>
+      </el-upload>
     </div>
     <el-row :gutter="20">
       <el-col :span="4" v-for="item in images" :key="item.id">
@@ -58,16 +65,17 @@ export default {
   },
   methods: {
     // 加载图片素材
-    loadImages (page = 1) {
+    loadImages (page = 1, collect = false) {
       this.$http({
         method: 'GET',
         url: '/user/images',
         params: {
+          collect,
           page,
           per_page: this.per_page
         }
       }).then(data => {
-        console.log(data)
+        // console.log(data)
         this.total_count = data.total_count
         this.images = data.results
       }).catch(err => {
@@ -123,6 +131,10 @@ export default {
         console.log(err)
         this.$message.error('删除失败')
       })
+    },
+    // 图片上传成功后
+    handleUplaodSuccess () {
+      this.loadImages()
     }
   }
 }
