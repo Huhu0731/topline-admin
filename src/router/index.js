@@ -50,6 +50,11 @@ const router = new Router({
           name: 'account-setting',
           path: '/account',
           component: () => import('@/views/account')
+        },
+        { // 用户图片素材
+          name: 'image',
+          path: '/image',
+          component: () => import('@/views/image')
         }
       ]
     },
