@@ -49,6 +49,13 @@ import 'quill/dist/quill.bubble.css'
 
 import { quillEditor } from 'vue-quill-editor'
 
+/**
+ * 如果是更新，则在第1次更新数据之后开启监视
+ * 如果是添加，则一上来就开启监视
+ * 如果是从更新页面导航到发布页面，则清空表单数据
+ * 如果是从发布页面导航到更新页面，则重新加载编辑页面的数据
+ */
+
 export default {
   name: 'AppPublish',
   components: {
@@ -68,7 +75,8 @@ export default {
       },
       editorOption: {}, // 富文本编辑器相关参数选项
       editLoading: false, // 点击编辑 form表单的加载
-      publishLoading: false // 发布更新文章按钮的禁用
+      publishLoading: false, // 发布更新文章按钮的禁用
+      formDirty: false // 表单内容是否修改过
     }
   },
   created () {
@@ -80,6 +88,11 @@ export default {
     // }
     // isEtid 为true时 就会执行 this.loadArticle()
     this.isEtid && this.loadArticle()
+    // 如果是发布文章 则一上来就开启监视
+    if (this.$route.name === 'publish') {
+      // 开启监视
+      this.watchForm()
+    }
   },
   methods: {
     // 发布文章 判断是发表还是更新
@@ -151,9 +164,25 @@ export default {
         // console.log(data)
         this.articleForm = data
         this.editLoading = false
+        // Vue 提供了这样的一个 API，简单理解就是延时调用
+        this.$nextTick(() => {
+          // 更新数据加载好以后，开启监视
+          this.watchForm()
+        })
       }).catch(err => {
         console.log(err)
         this.$message.error('加载文章详情失败')
+      })
+    },
+    // 监视表单数据是否发生变化
+    watchForm () {
+      const unWatch = this.$watch('articleForm', function () {
+        // console.log('watchForm')
+        this.formDirty = true
+        // 监视到就关闭监视器
+        unWatch()
+      }, {
+        deep: true // 深度监视
       })
     }
   },
@@ -167,6 +196,29 @@ export default {
   },
   mounted () {
     console.log('this is current quill instance object', this.editor)
+  },
+  /**
+   * 当要从当前导航到另一个路由的时候被触发
+   * 我们可以在这里控制路由离开的行为
+   * 例如当前页面如果有未保存的数据，我们就提示用户
+   * to 要去哪里
+   * from 来自哪里
+   * next 就是允许通过的方法
+   */
+  beforeRouteLeave (to, from, next) {
+    // 如果表单位被修改 则让其通过
+    if (this.formDirty === false) {
+      return next()
+    }
+    // 如果被修改 则提示用户
+    const answer = window.confirm('当前有未保存的数据，确认离开吗？')
+    if (answer) {
+      // 正常往后进行导航
+      next()
+    } else {
+      // 取消当前导航
+      next(false)
+    }
   }
 }
 </script>
