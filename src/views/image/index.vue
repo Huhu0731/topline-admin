@@ -15,8 +15,16 @@
         <el-card :body-style="{ padding: '0px' }">
           <img :src="item.url" class="image" style="width:100%">
           <div style="padding: 10px; display: flex; justify-content: center;">
-            <el-button type="primary" icon="el-icon-delete" circle plain></el-button>
-            <el-button type="primary" icon="el-icon-star-off" circle plain></el-button>
+            <el-button
+            type="primary"
+            icon="el-icon-delete"
+            circle plain
+            @click=handleDelect(item)></el-button>
+            <el-button
+            type="primary"
+            :icon="item.is_collected ? 'el-icon-star-on' : 'el-icon-star-off'"
+            circle plain
+            @click="handleCollected(item)"></el-button>
           </div>
         </el-card>
       </el-col>
@@ -25,7 +33,8 @@
       <el-pagination
         layout="prev, pager, next"
         @current-change="handleCurrentChange"
-        :total="total_count">
+        :total="total_count"
+        :page-size="per_page">
       </el-pagination>
     </div>
   </el-card>
@@ -39,7 +48,8 @@ export default {
       active: '全部',
       images: [],
       page: 1,
-      total_count: 0
+      total_count: 0, // 总页数
+      per_page: 6 // 每页数据
     }
   },
   created () {
@@ -54,7 +64,7 @@ export default {
         url: '/user/images',
         params: {
           page,
-          per_page: 12
+          per_page: this.per_page
         }
       }).then(data => {
         console.log(data)
@@ -70,6 +80,49 @@ export default {
       // console.log(page)
       this.page = page
       this.loadImages(page)
+    },
+    // 图片是否收藏
+    async handleCollected (item) {
+      // console.log(item)
+      try {
+        const collect = !item.is_collected
+
+        const data = await this.$http({
+          method: 'PUT',
+          url: `/user/images/${item.id}`,
+          data: {
+            collect
+          }
+        })
+        // console.log(data)
+        // 请求成功返回的数据
+        item.is_collected = data.collect
+        this.$message({
+          type: 'success',
+          message: `${collect ? '' : '取消'}收藏成功`
+        })
+      } catch (err) {
+        console.log(err)
+        this.$message.error(`$ { collect ? '' : '取消'}收藏失败`)
+      }
+    },
+    // 删除图片
+    handleDelect (item) {
+      console.log(item)
+      this.$http({
+        method: 'DELETE',
+        url: `/user/images/${item.id}`
+      }).then(() => {
+        this.$message({
+          type: 'success',
+          message: '删除成功'
+        })
+        // 删除之后，刷新数据列表
+        this.loadImages(this.page)
+      }).catch(err => {
+        console.log(err)
+        this.$message.error('删除失败')
+      })
     }
   }
 }
