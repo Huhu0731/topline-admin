@@ -88,7 +88,11 @@ export default {
     handleCurrentChange (page) {
       // console.log(page)
       this.page = page
-      this.loadImages(page)
+      if (this.active === '全部') {
+        this.loadImages(page)
+        return
+      }
+      this.loadImages(page, true)
     },
     // 图片是否收藏
     async handleCollected (item) {
