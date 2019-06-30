@@ -5,8 +5,8 @@
     </div>
     <div class="action">
       <el-radio-group v-model="active" size="medium">
-        <el-radio-button label="全部" @click.native="loadImages(1, false)"></el-radio-button>
-        <el-radio-button label="收藏" @click.native="loadImages(1, true)"></el-radio-button>
+        <el-radio-button label="全部" @click.native="loadAll(1, false)"></el-radio-button>
+        <el-radio-button label="收藏" @click.native="loadAll(1, true)"></el-radio-button>
       </el-radio-group>
       <el-upload
         action="http://ttapi.research.itcast.cn/mp/v1_0/user/images"
@@ -41,7 +41,8 @@
         layout="prev, pager, next"
         @current-change="handleCurrentChange"
         :total="total_count"
-        :page-size="per_page">
+        :page-size="per_page"
+        :current-page="page">
       </el-pagination>
     </div>
   </el-card>
@@ -135,6 +136,10 @@ export default {
     // 图片上传成功后
     handleUplaodSuccess () {
       this.loadImages()
+    },
+    loadAll (page, collect) {
+      this.loadImages(page, collect)
+      this.page = 1
     }
   }
 }
