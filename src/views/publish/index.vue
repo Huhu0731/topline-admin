@@ -36,7 +36,7 @@
         <template v-if="articleForm.cover.type > 0">
           <el-row>
             <el-col :span="5" v-for="item in articleForm.cover.type" :key="item">
-              <upload-image></upload-image>
+              <upload-image v-model="articleForm.cover.images[item-1]"></upload-image>
             </el-col>
           </el-row>
         </template>
@@ -142,6 +142,7 @@ export default {
         }
       }).then(data => {
         // console.log(data)
+        this.formDirty = false
         this.$message({
           type: 'success',
           message: '更新成功'
@@ -161,7 +162,8 @@ export default {
           draft
         }
       }).then(data => {
-        console.log(data)
+        // console.log(data)
+        this.formDirty = false
         this.$message({
           type: 'success',
           message: '发布成功'
@@ -224,7 +226,7 @@ export default {
    * next 就是允许通过的方法
    */
   beforeRouteLeave (to, from, next) {
-    // 如果表单位被修改 则让其通过
+    // 如果表单未被修改 则让其通过
     if (this.formDirty === false) {
       return next()
     }
